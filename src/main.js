@@ -7,8 +7,27 @@ import {apiCaller} from './api.js';
 
 
 let displayResult = function(response){
- $("#output").text(response);
+  $("#output").empty();
+  for (let i = 0; i < response.drinks.length; i++) {
+    $("#output").append(`<div class='drink'><h3>${response.drinks[i].strDrink}</h3><img src=${response.drinks[i].strDrinkThumb}>`);
+    let ingredientNumber = 1;
+    $("#output").append("<ul>");
+    while (response.drinks[i]["strIngredient" + ingredientNumber] != "") {
+      $("#output").append(`<li>${response.drinks[i]["strIngredient" + ingredientNumber]}</li>`);
+      ingredientNumber ++;
+    }
+    $("#output").append("</ul>");
+    $("#output").append(`<p>${response.drinks[i].strInstructions}</p></div>`);
+  }
 }
+
+let displayIngredientResult = function(response){
+  $("#output").empty();
+  for (let i = 0; i < response.drinks.length; i++) {
+    $("#output").append(`<div class='drink'><h3>${response.drinks[i].strDrink}</h3><img src=${response.drinks[i].strDrinkThumb}></div>`);
+  }
+}
+
 let errorResult = function(){
   $("#output").text("There was an error processing your request.");
 }
@@ -16,11 +35,24 @@ let errorResult = function(){
 $(document).ready(function(){
   $("#form1").submit(function(event){
     event.preventDefault();
-    let searchInput = $("#input1").val();
+    let searchInput = "search.php?s=" + $("#input1").val();
+    $("#form1")[0].reset();
     apiCaller(displayResult, searchInput, errorResult);
   });
+
+  $("#form2").submit(function(event){
+    event.preventDefault();
+    let searchInput2 = "filter.php?i=" + $("#input2").val();
+    $("#form2")[0].reset();
+    apiCaller(displayIngredientResult, searchInput2, errorResult);
+  });
+
 });
 
+$(document).on("click", ".drink", function() {
+  let description = "search.php?s=" + ($(this).children("h3").text());
+  apiCaller(displayResult, description, errorResult);
+});
 
 
 
